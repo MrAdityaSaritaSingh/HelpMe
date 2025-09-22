@@ -6,3 +6,5 @@ google-generativeai
 requests
 PyYAML
 lxml_html_clean
+fastapi
+uvicorn
