@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import axios from 'axios';
 import { FiSearch, FiCopy, FiDownload, FiChevronDown, FiChevronUp } from 'react-icons/fi';
@@ -70,11 +69,12 @@ const AnswerCard = ({ finalAnswer, sources }) => {
 
   // Function to parse the answer and replace citations with links
   const formatAnswer = (text) => {
-    return text.split(/(\[\d+\])/g).map((part, index) => {
-      const match = part.match(/\[(\d+)\]/);
+    // Split the text into parts based on the citation pattern
+    return text.split(/(\d+)/g).map((part, index) => {
+      const match = part.match(/(\d+)/);
       if (match) {
         const sourceIndex = parseInt(match[1], 10) - 1;
-        if (sources[sourceIndex]) {
+        if (sources && sources[sourceIndex]) {
           return (
             <a
               key={index}
@@ -82,11 +82,16 @@ const AnswerCard = ({ finalAnswer, sources }) => {
               target="_blank"
               rel="noopener noreferrer"
               className="mx-1 font-bold text-blue-600 no-underline bg-blue-100 rounded-full w-6 h-6 inline-flex items-center justify-center hover:bg-blue-200 transition-colors"
+              title={sources[sourceIndex].title}
             >
               {match[1]}
             </a>
           );
         }
+      }
+      // Check for "Sources" heading to make it bold
+      if (part.trim().toLowerCase() === 'sources') {
+        return <strong key={index} className="text-xl block mt-6 mb-2">{part}</strong>;
       }
       return <span key={index}>{part}</span>;
     });
@@ -113,30 +118,6 @@ const AnswerCard = ({ finalAnswer, sources }) => {
     </div>
   );
 };
-
-// Component to display the list of sources
-const SourcesList = ({ sources }) => (
-  <div className="w-full max-w-3xl mx-auto mt-8">
-    <h3 className="text-xl font-bold text-gray-800 mb-4">Sources</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {sources.map((source, index) => (
-        <a
-          key={index}
-          href={source.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
-        >
-          <img src={getFaviconUrl(source.url)} alt="" className="w-6 h-6 mr-4" />
-          <div className="overflow-hidden">
-            <p className="font-semibold text-gray-800 truncate">{source.title}</p>
-            <p className="text-sm text-gray-500 truncate">{source.url}</p>
-          </div>
-        </a>
-      ))}
-    </div>
-  </div>
-);
 
 // Component for the collapsible debug panel
 const DebugPanel = ({ researchData }) => {
@@ -203,7 +184,6 @@ function App() {
           {finalAnswer && (
             <>
               <AnswerCard finalAnswer={finalAnswer} sources={researchData?.sources || []} />
-              {researchData?.sources?.length > 0 && <SourcesList sources={researchData.sources} />}
               {researchData && <DebugPanel researchData={researchData} />}
             </>
           )}

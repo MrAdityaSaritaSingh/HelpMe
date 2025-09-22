@@ -3,3 +3,7 @@
 # Choose the search tool for the Researcher Agent.
 # Options: "duckduckgo" or "google"
 search_tool: "duckduckgo"
+
+# Specify the prompt files for the agents
+researcher_prompt: "src/prompts/researcher_system.txt"
+synthesizer_prompt: "src/prompts/synthesizer_system.txt"
