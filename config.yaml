@@ -1,0 +1,5 @@
+# Configuration for the AI Agent System
+
+# Choose the search tool for the Researcher Agent.
+# Options: "duckduckgo" or "google"
+search_tool: "duckduckgo"

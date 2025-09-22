@@ -1,0 +1,7 @@
+duckduckgo-search
+beautifulsoup4
+newspaper3k
+python-dotenv
+google-generativeai
+requests
+PyYAML

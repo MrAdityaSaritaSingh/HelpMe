@@ -99,36 +99,30 @@ autonomous-business-analyst/
 
 ## ▶️ How to Run
 
-1. **Clone Repository**
+1.  **Clone Repository**
 
    ```bash
    git clone https://github.com/your-username/HelpMe.git
    cd HelpMe
    ```
 
-2. **Install Dependencies**
+2.  **Install Dependencies**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set Environment Variables**
+3.  **Set Environment Variables**
 
-   * Provide API keys (if using Gemini/OpenRouter/OpenAI/Anthropic/SerpAPI/etc.)
+   Create a `.env` file (you can copy `.env.example`) and add your API keys.
 
-   ```bash
-   export GEMINI_API_KEY="your_api_key_here"
-   export OPENAI_API_KEY="your_api_key_here"
-   export SERPAPI_API_KEY="your_api_key_here"
-   ```
-
-4. **Run the Pipeline**
+4.  **Run the Pipeline**
 
    ```bash
-   python src/main.py --query "What is the RICE scoring model and how is it different from the Kano model?"
+   python -m src.orchestrator
    ```
 
-5. **View Results**
+5.  **View Results**
 
    * Final answer saved in `output/final_answer.txt`.
    * Logs & JSON stored for debugging.
