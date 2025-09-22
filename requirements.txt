@@ -8,3 +8,5 @@ PyYAML
 lxml_html_clean
 fastapi
 uvicorn
+openrouter-client
+openai

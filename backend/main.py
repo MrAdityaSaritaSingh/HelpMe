@@ -2,8 +2,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from .agents.researcher import researcher_agent
-from .agents.synthesizer import synthesizer_agent
+from .app.agents.researcher import researcher_agent
+from .app.agents.synthesizer import synthesizer_agent
 
 app = FastAPI()
 

@@ -101,7 +101,7 @@ const AnswerCard = ({ finalAnswer, sources }) => {
     <div className="w-full max-w-3xl mx-auto mt-10 bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Final Answer</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Research Answer</h2>
           <div className="flex space-x-2">
             <button onClick={handleCopy} className="p-2 text-gray-500 rounded-full hover:bg-gray-100 hover:text-gray-800 transition-colors">
               {copied ? <span className="text-sm text-green-600">Copied!</span> : <FiCopy />}

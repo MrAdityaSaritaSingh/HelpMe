@@ -3,9 +3,9 @@ import json
 import yaml
 from datetime import datetime
 from dotenv import load_dotenv
-import google.generativeai as genai
 from ..tools.search import search
 from ..tools.fetch import extract_article
+from ..llm import generate_text
 
 load_dotenv()
 
@@ -13,10 +13,6 @@ def researcher_agent(query):
     """
     Researches a given query and returns a structured JSON output.
     """
-    api_key = os.getenv("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-
     # 1. Initial Search to get a list of URLs
     search_results = search(query)
     urls = [item["link"] for item in search_results.get("items", [])[:7]] # Get top 7 URLs
@@ -49,12 +45,12 @@ def researcher_agent(query):
     # 4. Call the LLM with the system and user prompts
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
     
-    response = model.generate_content(full_prompt)
+    response_text = generate_text(full_prompt)
 
     # 5. Clean up and return the JSON response
     try:
         # The response might be wrapped in markdown, so we need to extract the JSON part
-        json_response = response.text.strip()
+        json_response = response_text.strip()
         if json_response.startswith("```json"):
             json_response = json_response[7:]
         if json_response.endswith("```"):

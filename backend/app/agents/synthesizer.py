@@ -2,7 +2,7 @@ import os
 import json
 import yaml
 from dotenv import load_dotenv
-import google.generativeai as genai
+from ..llm import generate_text
 
 load_dotenv()
 
@@ -10,10 +10,6 @@ def synthesizer_agent(query, research_data):
     """
     Synthesizes the research data to answer the user's query.
     """
-    api_key = os.getenv("GEMINI_API_KEY")
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-
     with open("config.yaml", "r") as f:
         config = yaml.safe_load(f)
 
@@ -26,5 +22,4 @@ def synthesizer_agent(query, research_data):
 
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
-    response = model.generate_content(full_prompt)
-    return response.text
+    return generate_text(full_prompt)

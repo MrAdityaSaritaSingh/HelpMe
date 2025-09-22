@@ -1,9 +1,17 @@
 # Configuration for the AI Agent System
 
+# Choose the LLM provider.
+# Options: "gemini" or "openrouter"
+llm_provider: "gemini"
+
+# Specify the model for OpenRouter.
+# Options: "google/gemini-flash-1.5", "mistralai/mistral-7b-instruct", "nousresearch/nous-hermes-2-mixtral-8x7b-dpo", "anthropic/claude-3-haiku", "gpt-3.5-turbo", "gpt-4", "gpt-oss/gpt-oss-1", "deepseek/deepseek-coder"
+openrouter_model: "deepseek/deepseek-coder"
+
 # Choose the search tool for the Researcher Agent.
 # Options: "duckduckgo" or "google"
 search_tool: "duckduckgo"
 
 # Specify the prompt files for the agents
-researcher_prompt: "src/prompts/researcher_system.txt"
-synthesizer_prompt: "src/prompts/synthesizer_system.txt"
+researcher_prompt: "backend/app/prompts/researcher_system.txt"
+synthesizer_prompt: "backend/app/prompts/synthesizer_system.txt"
