@@ -1,7 +1,8 @@
-duckduckgo-search
+ddgs
 beautifulsoup4
 newspaper3k
 python-dotenv
 google-generativeai
 requests
 PyYAML
+lxml_html_clean

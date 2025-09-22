@@ -1,6 +1,6 @@
 import json
-from src.tools.search import search
-from src.tools.fetch import extract_article
+from ..tools.search import search
+from ..tools.fetch import extract_article
 
 def researcher_agent(query):
     """

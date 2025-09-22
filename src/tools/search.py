@@ -2,7 +2,7 @@
 import os
 import yaml
 import requests
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from dotenv import load_dotenv
 
 load_dotenv()

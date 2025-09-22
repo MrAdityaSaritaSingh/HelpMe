@@ -1,13 +1,13 @@
 
 import json
-from src.agents.researcher import researcher_agent
-from src.agents.synthesizer import synthesizer_agent
+from .agents.researcher import researcher_agent
+from .agents.synthesizer import synthesizer_agent
 
 def run():
     """
     Runs the AI agent pipeline.
     """
-    user_query = "What is the difference between market research and marketing research?"
+    user_query = input("Please enter your research query: ")
     print(f"Running researcher agent for query: '{user_query}'")
     research_data = researcher_agent(user_query)
     with open("output/research_results.json", "w") as f:
@@ -19,6 +19,8 @@ def run():
     with open("output/final_answer.txt", "w") as f:
         f.write(final_answer)
     print("Synthesis complete. Final answer saved to output/final_answer.txt")
+    print("\n\nFinal Answer:")
+    print(final_answer)
 
 if __name__ == "__main__":
     run()

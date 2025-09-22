@@ -11,7 +11,7 @@ def synthesizer_agent(query, research_data):
     """
     api_key = os.getenv("GEMINI_API_KEY")
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    model = genai.GenerativeModel('gemini-1.5-flash')
 
     with open("src/prompts/synthesizer_system.txt", "r") as f:
         prompt_template = f.read()
