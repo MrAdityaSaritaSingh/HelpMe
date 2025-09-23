@@ -13,9 +13,6 @@ llm_providers:
       api_key_env: "OPENROUTER_API_KEY"
       models:
           - "deepseek/deepseek-chat-v3.1:free"
-          - "mistralai/devstral-small-2505:free"
-          - "google/gemma-3n-e2b-it:free"
-          - "meta-llama/llama-3.3-8b-instruct:free"
           - "x-ai/grok-4-fast:free"
 
 # Default provider and model to use

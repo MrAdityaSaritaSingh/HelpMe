@@ -1,61 +1,86 @@
-# Project Approach & Technical Choices
+# HelpMe: Approach Overview
 
-This document outlines the technical approach, design patterns, and strategic decisions made during the development of the **HelpMe** AI Research Assistant.
-
----
-
-## 1. Overall Approach & Technical Choices
-
-The project is built on a modern, decoupled architecture to ensure scalability, maintainability, and a clean separation of concerns.
-
--   **Backend (FastAPI & Python):** The backend is a robust API built with FastAPI, chosen for its high performance, asynchronous capabilities, and automatic documentation. The core logic is encapsulated in a multi-agent, workflow-based system. Each agent (`ResearcherAgent`, `SynthesizerAgent`) is a self-contained class with a clear, step-by-step `run()` method. This modular, workflow-inspired design makes the logic easy to follow, debug, and extend.
-
--   **Frontend (React & Vite):** The user interface is a single-page application (SPA) built with React and bundled with Vite for a fast and efficient development experience. The UI is broken down into discrete, reusable components. To keep the main `App.jsx` component clean and manageable, the application's logic is further separated into custom React Hooks (`useQueryHistory`, `useModelSelection`, `useResearch`), which handle state management and side effects.
-
--   **Styling (Tailwind CSS):** The UI is styled using Tailwind CSS. This utility-first framework was chosen to enable rapid, consistent, and responsive design directly within the component markup.
+This document outlines the technical approach, architectural decisions, and development strategy for the **HelpMe** AI Research Assistant.
 
 ---
 
-## 2. Strategy for Finding Reliable, High-Quality Sources
+## 1. High-Level Architecture
 
-The quality of the final answer is highly dependent on the quality of the sources. The strategy for finding reliable information involves a multi-step process designed to emulate an expert researcher.
+The application is built on a modern, decoupled architecture featuring a client-server model. This ensures a clean separation of concerns, enhances scalability, and simplifies maintenance.
 
-1.  **LLM-Powered Query Refinement:** Before any search is performed, the user's initial, often conversational, query is passed to an LLM. A specialized prompt (`query_rewriter_system.txt`) instructs the model to act as a search expert, transforming the query into a concise, keyword-driven format optimized for search engines. This is the most critical step for improving the relevance of search results.
+-   **Frontend:** A React Single-Page Application (SPA) that provides a dynamic and responsive user interface.
+-   **Backend:** A high-performance Python API server built with FastAPI, which orchestrates the entire AI research workflow.
+-   **External Services:** The backend integrates with third-party APIs for Large Language Models (LLMs) and web search functionality.
 
-2.  **Flexible Search Providers:** The system uses the **Strategy Design Pattern** to allow for interchangeable search providers. By default, it uses DuckDuckGo for its privacy and ease of use. However, it can be easily configured to use the Google Custom Search API for potentially more comprehensive results.
+### Data Flow
 
-3.  **Intelligent Content Extraction:** Once a list of URLs is retrieved, the `newspaper3k` library is used to extract the main article content from each page. This tool is specifically designed to parse HTML and intelligently separate the core text from ads and boilerplate. To avoid being blocked by websites, the fetcher identifies itself with a standard browser `User-Agent` header.
+The following diagram illustrates the typical flow of a user query through the system:
 
-4.  **Concurrent Fetching:** To significantly speed up the data gathering process, all URLs are fetched and parsed concurrently using a `ThreadPoolExecutor`.
+```mermaid
+    Frontend -- "1. User sends query" --> BackendAPI
+    BackendAPI -- "2. Forwards request" --> Orchestrator
+    Orchestrator -- "3. Invokes Researcher" --> Researcher_Agents
+    Researcher_Agents -- "4. Makes external call" --> SearchAPI
+    SearchAPI -- "5. Return list of articles" --> Researcher_Agent
+    Orchestrator -- "6. Invokes Synthesizer with research data" --> Synthesizer_Agents
+    Synthesizer_Agents -- "7. Uses LLM for processing" --> LLM
+    LLM -- "8. Makes external call" --> ExternalLLM
+    Orchestrator -- "9. Stores history" --> DB
+    BackendAPI -- "10. Sends final answer" --> Frontend
+```
 
 ---
 
-## 3. LLM Selection & Rationale
+## 2. Core Technical Decisions
+
+The technology stack was chosen to prioritize performance, developer experience, and maintainability.
+
+> **Backend (FastAPI & Python):** The backend is a robust API built with FastAPI, chosen for its high performance, asynchronous capabilities, and automatic OpenAPI documentation. The core logic is encapsulated in a multi-agent, workflow-based system. Each agent (`ResearcherAgent`, `SynthesizerAgent`) is a self-contained class with a clear, step-by-step `run()` method. This modular design makes the logic easy to follow, debug, and extend.
+
+> **Frontend (React & Vite):** The user interface is a single-page application (SPA) built with React and bundled with Vite for a fast and efficient development experience. The UI is broken down into discrete, reusable components. To keep the main `App.jsx` component clean, the application's logic is further separated into custom React Hooks (`useQueryHistory`, `useModelSelection`, `useResearch`), which handle state management and side effects.
+
+---
+
+## 3. Strategy for Finding Reliable Sources
+
+The quality of the final answer is highly dependent on the quality of the sources. The strategy for finding reliable information emulates an expert researcher.
+
+1.  **LLM-Powered Query Refinement:** Before any search, the user's initial query is passed to an LLM. A specialized prompt (`query_rewriter_system.txt`) instructs the model to act as a search expert, transforming the query into a concise, keyword-driven format optimized for search engines. This is a critical step for improving the relevance of search results.
+
+2.  **Flexible Search Providers:** The system uses the **Strategy Design Pattern** to allow for interchangeable search providers. By default, it uses DuckDuckGo, but it can be easily configured to use other services like the Google Custom Search API.
+
+3.  **Intelligent Content Extraction:** The `newspaper3k` library extracts the main article content from each URL, intelligently separating core text from ads and boilerplate. To avoid being blocked, the fetcher identifies itself with a standard browser `User-Agent` header.
+
+4.  **Concurrent Fetching:** To accelerate data gathering, all URLs are fetched and parsed concurrently using a `ThreadPoolExecutor`.
+
+---
+
+## 4. LLM Integration Strategy
 
 The application is designed to be **LLM-agnostic**, giving the user maximum control over the "brain" of the operation.
 
--   **Primary Provider (OpenRouter):** The default and recommended provider is **OpenRouter**. This powerful service acts as an aggregator, providing access to a vast array of different LLMs, including many high-quality, free, and open-source models (like `deepseek`, `mistral`, and `gemma`). This was chosen to ensure that the application can be run and tested by anyone out-of-the-box without requiring paid API keys.
+-   **Primary Provider (OpenRouter):** The default provider is **OpenRouter**, an aggregator service that provides access to a vast array of LLMs, including many high-quality, free, and open-source models. This ensures the application can be run out-of-the-box without requiring paid API keys.
 
--   **Secondary Provider (Google Gemini):** The application also has native support for Google's **Gemini** models. Gemini is a powerful, multi-modal, and widely respected family of models, making it an excellent choice for high-quality research and synthesis.
+-   **Secondary Provider (Google Gemini):** The application also has native support for Google's powerful **Gemini** models, making it an excellent choice for high-quality research and synthesis.
 
 The user can dynamically switch between any configured provider and model directly from the UI, allowing them to choose the best tool for their specific query and budget.
 
 ---
 
-## 4. Synthesizer Agent Logic
+## 5. Synthesizer Agent Logic
 
 The `SynthesizerAgent` is responsible for the final, most critical step: transforming the structured JSON data from the researcher into a human-readable answer.
 
-The agent's logic is almost entirely driven by **prompt engineering**. The system prompt (`synthesizer_system.txt`) gives the LLM a clear persona ("professional research analyst") and a strict set of instructions:
+The agent's logic is driven by **prompt engineering**. The system prompt (`synthesizer_system.txt`) gives the LLM a clear persona ("professional research analyst") and a strict set of instructions:
 1.  Base the answer **only** on the provided JSON data to prevent hallucinations.
 2.  Meticulously cite sources using the format `[1]`, `[2]`, etc.
-3.  Follow strict formatting rules to ensure compatibility with the frontend's Markdown and citation-linking components. Specifically, it is instructed to place citations individually (e.g., `[1][2]`) and to **omit** a final "Sources" list, as the UI handles this dynamically.
+3.  Follow strict formatting rules to ensure compatibility with the frontend's Markdown and citation-linking components.
 
-The agent takes the user's original query and the research JSON as input, ensuring the final answer is not just a summary of the data, but a direct and relevant response to the user's question.
+The agent takes the user's original query and the research JSON as input, ensuring the final answer is a direct and relevant response to the user's question.
 
 ---
 
-## 5. Setup and Run Instructions
+## 6. Setup and Run Instructions
 
 *Note: These instructions are also available in the main `README.md` file.*
 
@@ -88,7 +113,7 @@ The agent takes the user's original query and the research JSON as input, ensuri
     # Navigate to the frontend directory and install npm packages
     cd frontend
     npm install
-    cd .. 
+    cd ..
     ```
 
 4.  **Configure API Keys:**
@@ -107,7 +132,7 @@ You'll need to run the backend and frontend servers in two separate terminals.
     # Make sure your virtual environment is activated
     uvicorn backend.main:app --reload
     ```
-    The backend will be running at `http://12-7.0.0.1:8000`.
+    The backend will be running at `http://127.0.0.1:8000`.
 
 2.  **Run the Frontend Development Server:**
     ```sh
