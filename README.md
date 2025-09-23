@@ -40,6 +40,40 @@ This project is built with a modern, robust tech stack:
 
 ---
 
+## 📂 Project Structure
+
+The project is organized into a clean and logical directory structure:
+
+```
+/
+├── backend/
+│   ├── app/
+│   │   ├── agents/         # Core logic for the Researcher and Synthesizer agents.
+│   │   ├── hooks/          # Post-processing functions (e.g., saving results).
+│   │   ├── prompts/        # System prompts for the LLMs.
+│   │   ├── tools/          # Utilities for searching and fetching web content.
+│   │   ├── database.py     # Handles SQLite database operations.
+│   │   └── llm.py          # Manages interactions with LLM providers (Gemini, OpenRouter).
+│   └── main.py             # FastAPI application entry point and API endpoints.
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Reusable React components (e.g., AnswerCard, SearchBar).
+│   │   ├── hooks/          # Custom React hooks for managing state and logic.
+│   │   ├── services/       # API service for communicating with the backend.
+│   │   └── App.jsx         # Main application component.
+│   └── ...                 # Other frontend files (Vite config, Tailwind config, etc.)
+├── _docs/                  # Project documentation, images, and screenshots.
+├── output/                 # Default directory for saved JSON research files.
+├── .env                    # Local environment variables (API keys).
+├── .gitignore              # Specifies files and directories to be ignored by Git.
+├── config.yaml             # Main configuration file for the application.
+├── LICENSE                 # Project's MIT License.
+├── README.md               # This file.
+└── requirements.txt        # Python dependencies for the backend.
+```
+
+---
+
 ## 🚀 Getting Started
 
 Follow these instructions to get a local copy up and running.
