@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  background-color: #f8fafc; /* bg-gray-50 */
+  background-image: radial-gradient(circle at top left, #eff6ff, transparent 40%),
+                    radial-gradient(circle at bottom right, #f0f9ff, transparent 50%);
+  background-attachment: fixed;
+}
+
+@keyframes fade-in-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-slide-up {
+  animation: fade-in-slide-up 0.5s ease-out forwards;
+}

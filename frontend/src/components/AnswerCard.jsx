@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FiCopy, FiDownload } from 'react-icons/fi';
+import { FiCopy, FiDownload, FiCheck } from 'react-icons/fi';
 
 const AnswerCard = ({ finalAnswer, sources }) => {
     const [copied, setCopied] = useState(false);
@@ -16,15 +16,15 @@ const AnswerCard = ({ finalAnswer, sources }) => {
       const a = document.createElement('a');
       a.href = url;
       a.download = 'research_answer.txt';
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     };
   
-    // Function to parse the answer and replace citations with links
     const formatAnswer = (text) => {
-      // Split the text into parts based on the citation pattern
-      return text.split(/(\d+)/g).map((part, index) => {
-        const match = part.match(/(\d+)/);
+      return text.split(/(\[\d+\])/g).map((part, index) => {
+        const match = part.match(/\[(\d+)\]/);
         if (match) {
           const sourceIndex = parseInt(match[1], 10) - 1;
           if (sources && sources[sourceIndex]) {
@@ -34,37 +34,41 @@ const AnswerCard = ({ finalAnswer, sources }) => {
                 href={sources[sourceIndex].url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mx-1 font-bold text-blue-600 no-underline bg-blue-100 rounded-full w-6 h-6 inline-flex items-center justify-center hover:bg-blue-200 transition-colors"
+                className="mx-1 font-medium text-blue-600 no-underline hover:underline"
                 title={sources[sourceIndex].title}
               >
-                {match[1]}
+                <sup>[{match[1]}]</sup>
               </a>
             );
           }
-        }
-        // Check for "Sources" heading to make it bold
-        if (part.trim().toLowerCase() === 'sources') {
-          return <strong key={index} className="text-xl block mt-6 mb-2">{part}</strong>;
         }
         return <span key={index}>{part}</span>;
       });
     };
   
     return (
-      <div className="w-full max-w-3xl mx-auto mt-10 bg-white rounded-xl shadow-lg overflow-hidden">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-gray-200/80 overflow-hidden">
         <div className="p-6 md:p-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">Answer</h2>
-            <div className="flex space-x-2">
-              <button onClick={handleCopy} className="p-2 text-gray-500 rounded-full hover:bg-gray-100 hover:text-gray-800 transition-colors">
-                {copied ? <span className="text-sm text-green-600">Copied!</span> : <FiCopy />}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-gray-800 tracking-tight">Answer</h2>
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={handleCopy} 
+                className="group relative flex items-center justify-center p-2 w-28 text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-all duration-200"
+              >
+                {copied ? <FiCheck className="text-green-500 w-5 h-5" /> : <FiCopy className="w-5 h-5" />}
+                <span className="ml-2 text-sm font-medium">{copied ? 'Copied!' : 'Copy'}</span>
               </button>
-              <button onClick={handleDownload} className="p-2 text-gray-500 rounded-full hover:bg-gray-100 hover:text-gray-800 transition-colors">
-                <FiDownload />
+              <button 
+                onClick={handleDownload} 
+                className="group relative flex items-center justify-center p-2 w-32 text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-800 transition-all duration-200"
+              >
+                <FiDownload className="w-5 h-5" />
+                <span className="ml-2 text-sm font-medium">Download</span>
               </button>
             </div>
           </div>
-          <div className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap">
+          <div className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap prose prose-lg max-w-none">
             {formatAnswer(finalAnswer)}
           </div>
         </div>
