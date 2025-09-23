@@ -3,20 +3,24 @@
 project_name: "HelpMe"
 author: "Aditya S Rathore"
 
-# Choose the LLM provider.
-# Options: "gemini" or "openrouter"
-llm_provider: "openrouter"
+# LLM Configuration
+llm_providers:
+    - name: "gemini"
+      api_key_env: "GEMINI_API_KEY"
+      models:
+          - "gemini-1.5-flash"
+    - name: "openrouter"
+      api_key_env: "OPENROUTER_API_KEY"
+      models:
+          - "deepseek/deepseek-chat-v3.1:free"
+          - "mistralai/devstral-small-2505:free"
+          - "google/gemma-3n-e2b-it:free"
+          - "meta-llama/llama-3.3-8b-instruct:free"
+          - "x-ai/grok-4-fast:free"
 
-# Specify the models for each provider.
-gemini_model: "gemini-1.5-flash"
-# Free model options: 
-# "deepseek/deepseek-chat-v3.1:free"
-# "openai/gpt-oss-120b:free" 
-# "google/gemma-7b-it:free"
-# "microsoft/phi-2:free"
-# "mistralai/mistral-7b-instruct:free"
-openrouter_model: "deepseek/deepseek-chat-v3.1:free"
-
+# Default provider and model to use
+default_provider: "openrouter"
+default_model: "deepseek/deepseek-chat-v3.1:free"
 
 # Choose the search tool for the Researcher Agent.
 # Options: "duckduckgo" or "google"

@@ -5,18 +5,7 @@ import AnswerCard from './components/AnswerCard';
 import DebugPanel from './components/DebugPanel';
 import ModelSelector from './components/ModelSelector';
 import ProviderSelector from './components/ProviderSelector';
-import { research } from './services/api';
-
-const models = {
-  gemini: ["gemini-1.5-flash"],
-  openrouter: [
-    "deepseek/deepseek-chat-v3.1:free",
-    "openai/gpt-oss-120b:free",
-    "google/gemma-7b-it:free",
-    "microsoft/phi-2:free",
-    "mistralai/mistral-7b-instruct:free",
-  ],
-};
+import { research, getModels } from './services/api';
 
 function App() {
   const [query, setQuery] = useState('');
@@ -24,12 +13,37 @@ function App() {
   const [finalAnswer, setFinalAnswer] = useState('');
   const [researchData, setResearchData] = useState(null);
   const [error, setError] = useState(null);
-  const [selectedProvider, setSelectedProvider] = useState('openrouter');
-  const [selectedModel, setSelectedModel] = useState(models.openrouter[0]);
+  
+  const [providers, setProviders] = useState([]);
+  const [selectedProvider, setSelectedProvider] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+  const [modelsForProvider, setModelsForProvider] = useState([]);
 
   useEffect(() => {
-    setSelectedModel(models[selectedProvider][0]);
-  }, [selectedProvider]);
+    const fetchModels = async () => {
+      try {
+        const data = await getModels();
+        setProviders(data.providers);
+        if (data.providers.length > 0) {
+          const defaultProvider = data.providers.find(p => p.name === 'openrouter') || data.providers[0];
+          setSelectedProvider(defaultProvider.name);
+          setModelsForProvider(defaultProvider.models);
+          setSelectedModel(defaultProvider.models[0]);
+        }
+      } catch (err) {
+        setError('Failed to fetch models from the backend.');
+      }
+    };
+    fetchModels();
+  }, []);
+
+  useEffect(() => {
+    const provider = providers.find(p => p.name === selectedProvider);
+    if (provider) {
+      setModelsForProvider(provider.models);
+      setSelectedModel(provider.models[0]);
+    }
+  }, [selectedProvider, providers]);
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -57,8 +71,8 @@ function App() {
 
         <main>
           <SearchBar query={query} setQuery={setQuery} handleSearch={handleSearch} loading={loading} />
-          <ProviderSelector selectedProvider={selectedProvider} setSelectedProvider={setSelectedProvider} loading={loading} />
-          <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} loading={loading} models={models[selectedProvider]} />
+          <ProviderSelector selectedProvider={selectedProvider} setSelectedProvider={setSelectedProvider} loading={loading} providers={providers} />
+          <ModelSelector selectedModel={selectedModel} setSelectedModel={setSelectedModel} loading={loading} models={modelsForProvider} />
 
           {loading && <LoadingSpinner />}
 

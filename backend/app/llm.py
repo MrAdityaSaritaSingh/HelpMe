@@ -37,21 +37,28 @@ class OpenRouterProvider(LLMProvider):
         )
         return response.choices[0].message.content
 
-def get_llm_provider(provider=None):
+def get_llm_provider(provider_name=None):
     with open("config.yaml", "r") as f:
         config = yaml.safe_load(f)
     
-    provider_name = provider or config.get("llm_provider", "gemini")
+    if not provider_name:
+        provider_name = config.get("default_provider", "gemini")
+
+    provider_config = next((p for p in config.get("llm_providers", []) if p["name"] == provider_name), None)
+
+    if not provider_config:
+        raise ValueError(f"Unsupported LLM provider: {provider_name}")
+
+    api_key_env = provider_config.get("api_key_env")
+    api_key = os.getenv(api_key_env)
+    default_model = provider_config.get("models", [None])[0]
 
     if provider_name == "gemini":
-        api_key = os.getenv("GEMINI_API_KEY")
-        model = config.get("gemini_model", "gemini-1.5-flash")
-        return GeminiProvider(api_key, model)
+        return GeminiProvider(api_key, default_model)
     elif provider_name == "openrouter":
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        model = config.get("openrouter_model", "nousresearch/nous-hermes-2-mixtral-8x7b-dpo")
-        return OpenRouterProvider(api_key, model)
+        return OpenRouterProvider(api_key, default_model)
     else:
+        # This part might be redundant if the check above is sufficient
         raise ValueError(f"Unsupported LLM provider: {provider_name}")
 
 def generate_text(prompt, model_name=None, provider=None):

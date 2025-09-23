@@ -1,4 +1,5 @@
 
+import yaml
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -21,7 +22,13 @@ class Query(BaseModel):
     model: str = None
     provider: str = None
 
-@app.post("/research")
+@app.get("/api/models")
+def get_models():
+    with open("config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+    return {"providers": config.get("llm_providers", [])}
+
+@app.post("/api/research")
 def research(query: Query):
     research_data = researcher_agent(query.query, query.model, query.provider)
     final_answer = synthesizer_agent(query.query, research_data, query.model, query.provider)
