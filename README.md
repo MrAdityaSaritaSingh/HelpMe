@@ -7,8 +7,7 @@
 
 ---
 
-![HelpMe Screenshot](_docs/screenshot.png) 
-*Note: Add a screenshot of the application to the `_docs` folder.*
+![HelpMe Screenshot](_docs/long.png) 
 
 ## ✨ About The Project
 
