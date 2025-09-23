@@ -12,7 +12,7 @@ load_dotenv()
 
 class ResearcherAgent:
     def __init__(self, query, model_name=None, provider=None):
-        self.query = query
+        self.original_query = query
         self.model_name = model_name
         self.provider = provider
         self.research_data = {}
@@ -35,7 +35,7 @@ class ResearcherAgent:
 
     def _step_0_rewrite_query(self):
         """Uses an LLM to rewrite the user's query for better search results."""
-        print(f"Rewriting query: '{self.query}'")
+        print(f"Rewriting query: '{self.original_query}'")
         with open("config.yaml", "r") as f:
             config = yaml.safe_load(f)
         
@@ -43,7 +43,7 @@ class ResearcherAgent:
         with open(prompt_path, "r") as f:
             system_prompt = f.read()
         
-        rewritten_query = generate_text(system_prompt, self.query, self.model_name, self.provider).strip()
+        rewritten_query = generate_text(system_prompt, self.original_query, self.model_name, self.provider).strip()
         print(f"Rewritten query: '{rewritten_query}'")
         return rewritten_query
 
@@ -81,19 +81,21 @@ class ResearcherAgent:
         with open(prompt_path, "r") as f:
             system_prompt = f.read()
 
-        user_prompt = f"User Query: {self.query}\n\nWeb Search Results:\n---\n{context}\n---\nPlease analyze the provided search results and generate the JSON output as per the schema."
+        user_prompt = f"User Query: {self.original_query}\n\nWeb Search Results:\n---\n{context}\n---\nPlease analyze the provided search results and generate the JSON output as per the schema."
         
         response_text = generate_text(system_prompt, user_prompt, self.model_name, self.provider)
 
         try:
             json_response = response_text.strip().replace("```json", "").replace("```", "")
             research_data = json.loads(json_response)
+            # Ensure the original query is in the final output
+            research_data["query"] = self.original_query
             research_data["completed_at_utc"] = datetime.utcnow().isoformat()
             return research_data
         except (json.JSONDecodeError, TypeError) as e:
             print(f"Error decoding JSON from researcher agent: {e}")
             return {
-                "query": self.query,
+                "query": self.original_query,
                 "completed_at_utc": datetime.utcnow().isoformat(),
                 "sources": [],
                 "error": "Failed to generate valid JSON research data."
