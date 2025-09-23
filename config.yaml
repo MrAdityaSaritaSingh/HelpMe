@@ -29,3 +29,4 @@ search_tool: "duckduckgo"
 # Specify the prompt files for the agents
 researcher_prompt: "backend/app/prompts/researcher_system.txt"
 synthesizer_prompt: "backend/app/prompts/synthesizer_system.txt"
+query_rewriter_prompt: "backend/app/prompts/query_rewriter_system.txt"

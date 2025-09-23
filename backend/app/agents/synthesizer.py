@@ -16,10 +16,10 @@ class SynthesizerAgent:
     def run(self):
         """Executes the synthesis workflow."""
         # Step 1: Prepare the prompt for the LLM
-        full_prompt = self._step_1_prepare_prompt()
+        system_prompt, user_prompt = self._step_1_prepare_prompt()
 
         # Step 2: Generate the final answer
-        final_answer = self._step_2_generate_answer(full_prompt)
+        final_answer = self._step_2_generate_answer(system_prompt, user_prompt)
         
         return final_answer
 
@@ -36,12 +36,12 @@ class SynthesizerAgent:
 
         user_prompt = f"INPUT: {json.dumps(self.research_data, indent=2)}"
         
-        return f"{system_prompt}\n\n{user_prompt}"
+        return system_prompt, user_prompt
 
-    def _step_2_generate_answer(self, full_prompt):
+    def _step_2_generate_answer(self, system_prompt, user_prompt):
         """Calls the LLM to generate the final, synthesized answer."""
         print("Generating final answer from LLM...")
-        return generate_text(full_prompt, self.model_name, self.provider)
+        return generate_text(system_prompt, user_prompt, self.model_name, self.provider)
 
 # The public function that will be called by the API
 def synthesizer_agent(query, research_data, model_name=None, provider=None):

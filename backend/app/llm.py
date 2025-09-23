@@ -15,9 +15,10 @@ class GeminiProvider(LLMProvider):
         self.model = model
         genai.configure(api_key=self.api_key)
 
-    def generate_text(self, prompt, model_name=None):
+    def generate_text(self, system_prompt, user_prompt, model_name=None):
         model = genai.GenerativeModel(model_name or self.model)
-        response = model.generate_content(prompt)
+        full_prompt = f"{system_prompt}\n\n{user_prompt}"
+        response = model.generate_content(full_prompt)
         return response.text
 
 class OpenRouterProvider(LLMProvider):
@@ -29,11 +30,14 @@ class OpenRouterProvider(LLMProvider):
             api_key=self.api_key,
         )
 
-    def generate_text(self, prompt, model_name=None):
+    def generate_text(self, system_prompt, user_prompt, model_name=None):
         model = model_name or self.model
         response = self.client.chat.completions.create(
             model=model,
-            messages=[{"role": "user", "content": prompt}],
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
         )
         return response.choices[0].message.content
 
@@ -61,6 +65,6 @@ def get_llm_provider(provider_name=None):
         # This part might be redundant if the check above is sufficient
         raise ValueError(f"Unsupported LLM provider: {provider_name}")
 
-def generate_text(prompt, model_name=None, provider=None):
+def generate_text(system_prompt, user_prompt, model_name=None, provider=None):
     llm_provider = get_llm_provider(provider)
-    return llm_provider.generate_text(prompt, model_name)
+    return llm_provider.generate_text(system_prompt, user_prompt, model_name)

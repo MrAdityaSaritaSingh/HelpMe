@@ -20,8 +20,11 @@ class ResearcherAgent:
 
     def run(self):
         """Executes the entire research workflow."""
+        # Step 0: Rewrite the user's query for better search results
+        rewritten_query = self._step_0_rewrite_query()
+
         # Step 1: Initial web search to get URLs
-        urls = self._step_1_search()
+        urls = self._step_1_search(rewritten_query)
 
         # Step 2: Fetch and parse content from URLs in parallel
         fetched_content = self._step_2_fetch_and_parse(urls)
@@ -34,10 +37,24 @@ class ResearcherAgent:
         
         return self.research_data
 
-    def _step_1_search(self):
+    def _step_0_rewrite_query(self):
+        """Uses an LLM to rewrite the user's query for better search results."""
+        print(f"Rewriting query: '{self.query}'")
+        with open("config.yaml", "r") as f:
+            config = yaml.safe_load(f)
+        
+        prompt_path = config.get("query_rewriter_prompt", "backend/app/prompts/query_rewriter_system.txt")
+        with open(prompt_path, "r") as f:
+            system_prompt = f.read()
+        
+        rewritten_query = generate_text(system_prompt, self.query, self.model_name, self.provider).strip()
+        print(f"Rewritten query: '{rewritten_query}'")
+        return rewritten_query
+
+    def _step_1_search(self, query):
         """Performs the initial web search and returns a list of URLs."""
-        print(f"Executing search for query: '{self.query}'")
-        search_results = search(self.query)
+        print(f"Executing search for query: '{query}'")
+        search_results = search(query)
         return [item.get("link") or item.get("href") for item in search_results.get("items", [])[:7]]
 
     def _step_2_fetch_and_parse(self, urls):
@@ -69,9 +86,8 @@ class ResearcherAgent:
             system_prompt = f.read()
 
         user_prompt = f"User Query: {self.query}\n\nWeb Search Results:\n---\n{context}\n---\nPlease analyze the provided search results and generate the JSON output as per the schema."
-        full_prompt = f"{system_prompt}\n\n{user_prompt}"
         
-        response_text = generate_text(full_prompt, self.model_name, self.provider)
+        response_text = generate_text(system_prompt, user_prompt, self.model_name, self.provider)
 
         try:
             json_response = response_text.strip().replace("```json", "").replace("```", "")
