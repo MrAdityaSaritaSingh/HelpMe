@@ -9,7 +9,7 @@ from ..llm import generate_text
 
 load_dotenv()
 
-def researcher_agent(query):
+def researcher_agent(query, model_name=None, provider=None):
     """
     Researches a given query and returns a structured JSON output.
     """
@@ -45,7 +45,7 @@ def researcher_agent(query):
     # 4. Call the LLM with the system and user prompts
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
     
-    response_text = generate_text(full_prompt)
+    response_text = generate_text(full_prompt, model_name, provider)
 
     # 5. Clean up and return the JSON response
     try:

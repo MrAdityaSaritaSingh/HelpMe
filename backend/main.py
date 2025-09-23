@@ -18,9 +18,11 @@ app.add_middleware(
 
 class Query(BaseModel):
     query: str
+    model: str = None
+    provider: str = None
 
 @app.post("/research")
 def research(query: Query):
-    research_data = researcher_agent(query.query)
-    final_answer = synthesizer_agent(query.query, research_data)
+    research_data = researcher_agent(query.query, query.model, query.provider)
+    final_answer = synthesizer_agent(query.query, research_data, query.model, query.provider)
     return {"final_answer": final_answer, "research_data": research_data}

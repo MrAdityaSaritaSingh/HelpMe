@@ -6,7 +6,7 @@ from ..llm import generate_text
 
 load_dotenv()
 
-def synthesizer_agent(query, research_data):
+def synthesizer_agent(query, research_data, model_name=None, provider=None):
     """
     Synthesizes the research data to answer the user's query.
     """
@@ -22,4 +22,4 @@ def synthesizer_agent(query, research_data):
 
     full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
-    return generate_text(full_prompt)
+    return generate_text(full_prompt, model_name, provider)
