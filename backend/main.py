@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from .app.agents.researcher import researcher_agent
 from .app.agents.synthesizer import synthesizer_agent
 from .app import database
-from .app.hooks import save_to_json_file_hook
+from .app.hooks import save_to_json_file_hook, save_to_text_file_hook
 
 app = FastAPI()
 
@@ -50,6 +50,7 @@ def research(query: Query):
     try:
         database.save_research_hook(result)
         save_to_json_file_hook(result)
+        save_to_text_file_hook(result)
     except Exception as e:
         print(f"Error during post-processing: {e}")
         # Optionally, you could return an error response here
