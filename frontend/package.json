@@ -1,5 +1,6 @@
 {
-  "name": "frontend",
+  "name": "helpme",
+  "author": "Aditya S Rathore",
   "private": true,
   "version": "0.0.0",
   "type": "module",

@@ -101,7 +101,7 @@ const AnswerCard = ({ finalAnswer, sources }) => {
     <div className="w-full max-w-3xl mx-auto mt-10 bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Research Answer</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Answer</h2>
           <div className="flex space-x-2">
             <button onClick={handleCopy} className="p-2 text-gray-500 rounded-full hover:bg-gray-100 hover:text-gray-800 transition-colors">
               {copied ? <span className="text-sm text-green-600">Copied!</span> : <FiCopy />}
@@ -172,8 +172,8 @@ function App() {
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       <div className="container mx-auto px-4 py-8 md:py-12">
         <header className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">AI Research Assistant</h1>
-          <p className="text-lg text-gray-600 mt-2">Your smart tool for deep-dive research, simplified.</p>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800">HelpMe</h1>
+          <p className="text-lg text-gray-600 mt-2">Your smart tool for deep-dive.</p>
         </header>
 
         <main>

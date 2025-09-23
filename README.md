@@ -1,4 +1,4 @@
-# AI Research Assistant
+# HelpMe
 
 This project is an AI-powered research assistant that helps you conduct research on any topic. It uses a multi-agent approach to gather, analyze, and synthesize information from the web.
 

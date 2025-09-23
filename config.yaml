@@ -1,5 +1,8 @@
 # Configuration for the AI Agent System
 
+project_name: "HelpMe"
+author: "Aditya S Rathore"
+
 # Choose the LLM provider.
 # Options: "gemini" or "openrouter"
 llm_provider: "gemini"
