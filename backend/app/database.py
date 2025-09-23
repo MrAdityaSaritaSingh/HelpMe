@@ -19,8 +19,11 @@ def init_db():
     conn.commit()
     conn.close()
 
-def save_result(query, final_answer, research_data):
-    """Saves a new research result to the database."""
+def save_research_hook(research_data):
+    """Saves a new research result to the database (designed as a post-hook)."""
+    query = research_data.get("query", "N/A")
+    final_answer = research_data.get("final_answer", "") # This might not exist here, adjust if needed
+    
     conn = sqlite3.connect(DATABASE_NAME)
     cursor = conn.cursor()
     cursor.execute(

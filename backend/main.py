@@ -36,10 +36,18 @@ def get_models():
 
 @app.post("/api/research")
 def research(query: Query):
+    # Run the researcher agent to get the data
     research_data = researcher_agent(query.query, query.model, query.provider)
+    
+    # Run the synthesizer agent with the research data
     final_answer = synthesizer_agent(query.query, research_data, query.model, query.provider)
+    
+    # Combine the results
     result = {"final_answer": final_answer, "research_data": research_data}
-    database.save_result(query.query, final_answer, research_data)
+    
+    # Now that we have the complete result, save it to the database
+    database.save_research_hook(result)
+    
     return result
 
 @app.get("/api/research/last")

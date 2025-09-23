@@ -1,59 +1,59 @@
-
 import os
 import yaml
 import requests
 from ddgs import DDGS
 from dotenv import load_dotenv
+from abc import ABC, abstractmethod
 
 load_dotenv()
 
-def _search_google(query):
-    """
-    Searches using the Google Custom Search API.
-    """
-    api_key = os.getenv("GOOGLE_API_KEY")
-    cse_id = os.getenv("GOOGLE_CSE_ID")
-    if not api_key or not cse_id:
-        raise ValueError("GOOGLE_API_KEY and GOOGLE_CSE_ID must be set in .env for Google Search")
-    
-    url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "key": api_key,
-        "cx": cse_id,
-        "q": query
-    }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    return response.json()
+class SearchProvider(ABC):
+    """Abstract base class for a search provider."""
+    @abstractmethod
+    def search(self, query, max_results=7):
+        pass
 
-def _search_duckduckgo(query, max_results=5):
-    """
-    Searches using the DuckDuckGo Search API.
-    """
-    with DDGS() as ddgs:
-        results_generator = ddgs.text(query, max_results=max_results)
-        formatted_results = {"items": []}
-        for i, result in enumerate(results_generator):
-            formatted_results["items"].append({
-                "title": result.get('title'),
-                "link": result.get('href')
-            })
-            if i + 1 >= max_results:
-                break
-        return formatted_results
+class GoogleSearch(SearchProvider):
+    """Searches using the Google Custom Search API."""
+    def search(self, query, max_results=7):
+        api_key = os.getenv("GOOGLE_API_KEY")
+        cse_id = os.getenv("GOOGLE_CSE_ID")
+        if not api_key or not cse_id:
+            raise ValueError("GOOGLE_API_KEY and GOOGLE_CSE_ID must be set for Google Search.")
+        
+        url = "https://www.googleapis.com/customsearch/v1"
+        params = {"key": api_key, "cx": cse_id, "q": query, "num": max_results}
+        
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        return response.json()
 
-def search(query):
+class DuckDuckGoSearch(SearchProvider):
+    """Searches using the DuckDuckGo Search API."""
+    def search(self, query, max_results=7):
+        with DDGS() as ddgs:
+            results_generator = ddgs.text(query, max_results=max_results)
+            return {"items": list(results_generator)}
+
+def get_search_provider() -> SearchProvider:
     """
-    Performs a web search using the tool specified in config.yaml.
+    Factory function to get the search provider based on the config.
     """
     with open("config.yaml", "r") as f:
         config = yaml.safe_load(f)
     
-    tool = config.get("search_tool", "duckduckgo") # Default to duckduckgo
-
+    tool = config.get("search_tool", "duckduckgo")
+    
     if tool == "google":
-        return _search_google(query)
+        return GoogleSearch()
     elif tool == "duckduckgo":
-        return _search_duckduckgo(query)
+        return DuckDuckGoSearch()
     else:
-        raise ValueError(f"Invalid search tool specified in config.yaml: {tool}")
+        raise ValueError(f"Invalid search tool in config: {tool}")
+
+def search(query, max_results=7):
+    """
+    Performs a web search using the tool specified in config.yaml.
+    """
+    provider = get_search_provider()
+    return provider.search(query, max_results)
