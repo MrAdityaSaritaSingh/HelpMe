@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FiCopy, FiDownload, FiCheck } from 'react-icons/fi';
+import ReactMarkdown from 'react-markdown';
 
 const AnswerCard = ({ finalAnswer, sources }) => {
     const [copied, setCopied] = useState(false);
@@ -21,29 +22,47 @@ const AnswerCard = ({ finalAnswer, sources }) => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     };
-  
-    const formatAnswer = (text) => {
-      return text.split(/(\[\d+\])/g).map((part, index) => {
-        const match = part.match(/\[(\d+)\]/);
-        if (match) {
-          const sourceIndex = parseInt(match[1], 10) - 1;
-          if (sources && sources[sourceIndex]) {
-            return (
-              <a
-                key={index}
-                href={sources[sourceIndex].url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mx-1 font-medium text-blue-600 no-underline hover:underline"
-                title={sources[sourceIndex].title}
-              >
-                <sup>[{match[1]}]</sup>
-              </a>
-            );
+
+    // Custom renderer for paragraphs to handle citation linking
+    const customRenderers = {
+      p: ({ node, children }) => {
+        const processedChildren = [];
+        const childrenArray = Array.isArray(children) ? children : [children];
+
+        childrenArray.forEach((child, i) => {
+          if (typeof child === 'string') {
+            const parts = child.split(/(\[\d+\])/g);
+            
+            parts.forEach((part, j) => {
+              const match = part.match(/\[(\d+)\]/);
+              if (match) {
+                const sourceIndex = parseInt(match[1], 10) - 1;
+                if (sources && sources[sourceIndex]) {
+                  processedChildren.push(
+                    <a
+                      key={`${i}-${j}`}
+                      href={sources[sourceIndex].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mx-1 font-medium text-blue-600 no-underline hover:underline"
+                      title={sources[sourceIndex].title}
+                    >
+                      <sup>[{match[1]}]</sup>
+                    </a>
+                  );
+                } else {
+                  processedChildren.push(part); // Render as text if source not found
+                }
+              } else {
+                processedChildren.push(part);
+              }
+            });
+          } else {
+            processedChildren.push(child); // Pass through other elements like <strong>
           }
-        }
-        return <span key={index}>{part}</span>;
-      });
+        });
+        return <p>{processedChildren}</p>;
+      }
     };
   
     return (
@@ -68,8 +87,10 @@ const AnswerCard = ({ finalAnswer, sources }) => {
               </button>
             </div>
           </div>
-          <div className="text-lg text-gray-700 leading-relaxed whitespace-pre-wrap prose prose-lg max-w-none">
-            {formatAnswer(finalAnswer)}
+          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+            <ReactMarkdown components={customRenderers}>
+              {finalAnswer}
+            </ReactMarkdown>
           </div>
         </div>
       </div>

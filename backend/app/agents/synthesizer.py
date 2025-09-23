@@ -34,7 +34,7 @@ class SynthesizerAgent:
         with open(prompt_path, "r") as f:
             system_prompt = f.read()
 
-        user_prompt = f"INPUT: {json.dumps(self.research_data, indent=2)}"
+        user_prompt = f"User Query: {self.query}\n\nResearch Data:\n---\n{json.dumps(self.research_data, indent=2)}"
         
         return system_prompt, user_prompt
 
