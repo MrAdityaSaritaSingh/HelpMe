@@ -6,6 +6,8 @@ from .agents.synthesizer import synthesizer_agent
 def run():
     """
     Runs the AI agent pipeline.
+    takes user input, runs the researcher agent to gather data,
+    then runs the synthesizer agent to produce a final answer.
     """
     user_query = input("Please enter your research query: ")
     print(f"Running researcher agent for query: '{user_query}'")

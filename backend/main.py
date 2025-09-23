@@ -5,8 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .app.agents.researcher import researcher_agent
 from .app.agents.synthesizer import synthesizer_agent
+from .app import database
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    """Initializes the database on application startup."""
+    database.init_db()
 
 # Configure CORS
 app.add_middleware(
@@ -32,4 +38,16 @@ def get_models():
 def research(query: Query):
     research_data = researcher_agent(query.query, query.model, query.provider)
     final_answer = synthesizer_agent(query.query, research_data, query.model, query.provider)
-    return {"final_answer": final_answer, "research_data": research_data}
+    result = {"final_answer": final_answer, "research_data": research_data}
+    database.save_result(query.query, final_answer, research_data)
+    return result
+
+@app.get("/api/research/last")
+def get_last_research():
+    """
+    Returns the last successfully completed research result from the database.
+    """
+    last_result = database.get_last_result()
+    if last_result:
+        return last_result
+    return {"message": "No research has been performed yet."}

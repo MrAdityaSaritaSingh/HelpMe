@@ -129,3 +129,30 @@ cython_debug/
 # Output files
 output/
 keys.txt
+
+# Build artifacts
+/dist/
+/build/
+/output/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs & Caches
+*.log
+*.db
+*.sqlite3
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+*.orig
+*.rej
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.cache/
