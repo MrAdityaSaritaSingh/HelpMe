@@ -11,11 +11,10 @@ from ..llm import generate_text
 load_dotenv()
 
 class ResearcherAgent:
-    def __init__(self, query, model_name=None, provider=None, post_hooks=None):
+    def __init__(self, query, model_name=None, provider=None):
         self.query = query
         self.model_name = model_name
         self.provider = provider
-        self.post_hooks = post_hooks or []
         self.research_data = {}
 
     def run(self):
@@ -31,9 +30,6 @@ class ResearcherAgent:
 
         # Step 3: Prepare the prompt and generate the final JSON from the LLM
         self.research_data = self._step_3_generate_json(fetched_content)
-
-        # Step 4: Execute any post-processing hooks
-        self._step_4_run_post_hooks()
         
         return self.research_data
 
@@ -103,18 +99,7 @@ class ResearcherAgent:
                 "error": "Failed to generate valid JSON research data."
             }
 
-    def _step_4_run_post_hooks(self):
-        """Runs any provided post-processing hooks with the final research data."""
-        if not self.post_hooks:
-            return
-        print(f"Executing {len(self.post_hooks)} post-processing hooks...")
-        for hook in self.post_hooks:
-            try:
-                hook(self.research_data)
-            except Exception as e:
-                print(f"Error executing post-hook {hook.__name__}: {e}")
-
 # The public function that will be called by the API
-def researcher_agent(query, model_name=None, provider=None, post_hooks=None):
-    agent = ResearcherAgent(query, model_name, provider, post_hooks)
+def researcher_agent(query, model_name=None, provider=None):
+    agent = ResearcherAgent(query, model_name, provider)
     return agent.run()

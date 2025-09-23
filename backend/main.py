@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from .app.agents.researcher import researcher_agent
 from .app.agents.synthesizer import synthesizer_agent
 from .app import database
+from .app.hooks import save_to_json_file_hook
 
 app = FastAPI()
 
@@ -36,18 +37,24 @@ def get_models():
 
 @app.post("/api/research")
 def research(query: Query):
-    # Run the researcher agent to get the data
+    # Step 1: Run the researcher agent to get the data
     research_data = researcher_agent(query.query, query.model, query.provider)
     
-    # Run the synthesizer agent with the research data
+    # Step 2: Run the synthesizer agent with the research data
     final_answer = synthesizer_agent(query.query, research_data, query.model, query.provider)
     
-    # Combine the results
+    # Step 3: Combine the results into a single object
     result = {"final_answer": final_answer, "research_data": research_data}
     
-    # Now that we have the complete result, save it to the database
-    database.save_research_hook(result)
-    
+    # Step 4: Perform post-processing actions (e.g., saving)
+    try:
+        database.save_research_hook(result)
+        save_to_json_file_hook(result)
+    except Exception as e:
+        print(f"Error during post-processing: {e}")
+        # Optionally, you could return an error response here
+        # For now, we'll just log it and return the result
+        
     return result
 
 @app.get("/api/research/last")
