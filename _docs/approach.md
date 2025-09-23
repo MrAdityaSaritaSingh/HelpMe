@@ -1,142 +1,95 @@
-# HelpMe: Approach Overview
+# Project Approach: Autonomous Research Assistant
 
-This document outlines the technical approach, architectural decisions, and development strategy for the **HelpMe** AI Research Assistant.
+This document outlines the technical architecture and strategy for building **HelpMe**, an autonomous agent system designed to answer complex user queries by researching, synthesizing, and citing information from online sources.
+
+**Objective:** To build a system that can take a query, such as *"What is the RICE scoring model for prioritization, and how is it different from the Kano model?"*, and produce a single, reliable, and well-cited answer.
 
 ---
 
 ## 1. High-Level Architecture
 
-The application is built on a modern, decoupled architecture featuring a client-server model. This ensures a clean separation of concerns, enhances scalability, and simplifies maintenance.
+The system is built on a decoupled client-server model to ensure a clean separation of concerns, scalability, and maintainability.
 
--   **Frontend:** A React Single-Page Application (SPA) that provides a dynamic and responsive user interface.
--   **Backend:** A high-performance Python API server built with FastAPI, which orchestrates the entire AI research workflow.
--   **External Services:** The backend integrates with third-party APIs for Large Language Models (LLMs) and web search functionality.
+-   **Frontend:** A **React** Single-Page Application (SPA) provides a clean, responsive user interface for a student or user to submit their question.
+-   **Backend:** A high-performance **Python API server using FastAPI** orchestrates the multi-agent research and synthesis workflow.
+-   **External Services:** The backend integrates with third-party APIs for Large Language Models (LLMs) and web search.
 
-### Data Flow
+### Core Workflow: From Question to Answer
 
-The following diagram illustrates the typical flow of a user query through the system:
+The system follows a structured, multi-step process to handle a user's query, mimicking the workflow of a human research assistant.
 
 ```mermaid
-    Frontend -- "1. User sends query" --> BackendAPI
-    BackendAPI -- "2. Forwards request" --> Orchestrator
-    Orchestrator -- "3. Invokes Researcher" --> Researcher_Agents
-    Researcher_Agents -- "4. Makes external call" --> SearchAPI
-    SearchAPI -- "5. Return list of articles" --> Researcher_Agent
-    Orchestrator -- "6. Invokes Synthesizer with research data" --> Synthesizer_Agents
-    Synthesizer_Agents -- "7. Uses LLM for processing" --> LLM
-    LLM -- "8. Makes external call" --> ExternalLLM
-    Orchestrator -- "9. Stores history" --> DB
-    BackendAPI -- "10. Sends final answer" --> Frontend
+graph TD
+    A[Frontend UI] -- 1. User submits query --> B[Backend API];
+    B -- 2. Request forwarded --> C[Orchestrator];
+    C -- 3. Refine Query for Search --> D[LLM Agent: Query Rewriter];
+    D -- 4. Optimized search terms --> E[Search Tool];
+    E -- 5. Fetches source URLs --> F[Researcher Agent];
+    F -- 6. Extracts content from sources --> G[Content Fetcher];
+    G -- 7. Structured research data (JSON) --> C;
+    C -- 8. Pass data to Synthesizer --> H[Synthesizer Agent];
+    H -- 9. Generate final answer using LLM --> I[LLM Service];
+    I -- 10. Formatted & cited answer --> B;
+    B -- 11. Sends final answer to UI --> A;
 ```
 
 ---
 
-## 2. Core Technical Decisions
+## 2. The Autonomous Agent System
 
-The technology stack was chosen to prioritize performance, developer experience, and maintainability.
+The core of the backend is a multi-agent system where each agent has a specialized role. This modular design makes the logic easy to follow, debug, and extend.
 
-> **Backend (FastAPI & Python):** The backend is a robust API built with FastAPI, chosen for its high performance, asynchronous capabilities, and automatic OpenAPI documentation. The core logic is encapsulated in a multi-agent, workflow-based system. Each agent (`ResearcherAgent`, `SynthesizerAgent`) is a self-contained class with a clear, step-by-step `run()` method. This modular design makes the logic easy to follow, debug, and extend.
+1.  **Orchestrator:** The central controller that manages the entire workflow, passing the query and data between the other agents and tools.
 
-> **Frontend (React & Vite):** The user interface is a single-page application (SPA) built with React and bundled with Vite for a fast and efficient development experience. The UI is broken down into discrete, reusable components. To keep the main `App.jsx` component clean, the application's logic is further separated into custom React Hooks (`useQueryHistory`, `useModelSelection`, `useResearch`), which handle state management and side effects.
+2.  **Researcher Agent:** This agent's primary responsibility is to find and process reliable information.
+    -   **Query Refinement:** It first uses an LLM with a specialized prompt (`query_rewriter_system.txt`) to transform the user's natural language question into a set of concise, keyword-driven search queries. This is a critical step for improving the relevance of search results.
+    -   **Source Aggregation:** It uses a search tool (defaulting to DuckDuckGo) to find relevant articles and URLs.
+    -   **Content Extraction:** For each URL, it uses the `newspaper3k` library to intelligently extract the core article content, filtering out ads and boilerplate. To avoid being blocked, the fetcher identifies itself with a standard browser `User-Agent` header. All sources are fetched concurrently to minimize latency.
 
----
-
-## 3. Strategy for Finding Reliable Sources
-
-The quality of the final answer is highly dependent on the quality of the sources. The strategy for finding reliable information emulates an expert researcher.
-
-1.  **LLM-Powered Query Refinement:** Before any search, the user's initial query is passed to an LLM. A specialized prompt (`query_rewriter_system.txt`) instructs the model to act as a search expert, transforming the query into a concise, keyword-driven format optimized for search engines. This is a critical step for improving the relevance of search results.
-
-2.  **Flexible Search Providers:** The system uses the **Strategy Design Pattern** to allow for interchangeable search providers. By default, it uses DuckDuckGo, but it can be easily configured to use other services like the Google Custom Search API.
-
-3.  **Intelligent Content Extraction:** The `newspaper3k` library extracts the main article content from each URL, intelligently separating core text from ads and boilerplate. To avoid being blocked, the fetcher identifies itself with a standard browser `User-Agent` header.
-
-4.  **Concurrent Fetching:** To accelerate data gathering, all URLs are fetched and parsed concurrently using a `ThreadPoolExecutor`.
+3.  **Synthesizer Agent:** This agent's role is to transform the structured JSON data from the Researcher into a high-quality, human-readable answer.
+    -   **Prompt Engineering:** The agent uses a carefully crafted system prompt (`synthesizer_system.txt`) that instructs the LLM to act as a professional research analyst.
+    -   **Core Directives:** The prompt enforces strict rules:
+        1.  Base the answer **only** on the provided source data to prevent hallucinations.
+        2.  Meticulously cite sources using a clear format (e.g., `[1]`, `[2]`).
+        3.  Follow strict formatting rules (Markdown) to ensure the frontend can correctly render the answer and link citations.
 
 ---
 
-## 4. LLM Integration Strategy
+## 3. Key Technical Decisions
 
-The application is designed to be **LLM-agnostic**, giving the user maximum control over the "brain" of the operation.
+The technology stack was chosen to prioritize performance, user experience, and maintainability.
 
--   **Primary Provider (OpenRouter):** The default provider is **OpenRouter**, an aggregator service that provides access to a vast array of LLMs, including many high-quality, free, and open-source models. This ensures the application can be run out-of-the-box without requiring paid API keys.
+-   **Backend (FastAPI & Python):** FastAPI was chosen for its high performance, asynchronous capabilities, and automatic API documentation. Python's extensive ecosystem of data processing and AI libraries makes it the ideal choice for the backend logic.
 
--   **Secondary Provider (Google Gemini):** The application also has native support for Google's powerful **Gemini** models, making it an excellent choice for high-quality research and synthesis.
+-   **Frontend (React & Vite):** React allows for the creation of a dynamic and component-based UI. Vite provides a fast and efficient development experience. The application logic is separated into custom React Hooks (`useQueryHistory`, `useResearch`) to keep the UI components clean and maintainable.
 
-The user can dynamically switch between any configured provider and model directly from the UI, allowing them to choose the best tool for their specific query and budget.
-
----
-
-## 5. Synthesizer Agent Logic
-
-The `SynthesizerAgent` is responsible for the final, most critical step: transforming the structured JSON data from the researcher into a human-readable answer.
-
-The agent's logic is driven by **prompt engineering**. The system prompt (`synthesizer_system.txt`) gives the LLM a clear persona ("professional research analyst") and a strict set of instructions:
-1.  Base the answer **only** on the provided JSON data to prevent hallucinations.
-2.  Meticulously cite sources using the format `[1]`, `[2]`, etc.
-3.  Follow strict formatting rules to ensure compatibility with the frontend's Markdown and citation-linking components.
-
-The agent takes the user's original query and the research JSON as input, ensuring the final answer is a direct and relevant response to the user's question.
+-   **LLM Agnostic Design:** The system is designed to be flexible in its use of LLMs.
+    -   **Default (OpenRouter):** It defaults to OpenRouter, an aggregator that provides access to a wide variety of models, including free, open-source options. This ensures the application can be run without requiring paid API keys.
+    -   **Alternative (Google Gemini):** Native support for Google's Gemini models is also included for users who require higher-quality synthesis.
+    -   The user can switch between any configured provider and model directly from the UI.
 
 ---
 
-## 6. Setup and Run Instructions
+## 4. Setup and Run Instructions
 
 *Note: These instructions are also available in the main `README.md` file.*
+![HelpMe Screenshot](long.png) 
 
 ### Prerequisites
 
--   **Python 3.10+** and `pip`
--   **Node.js 18+** and `npm`
--   Git
+-   Python 3.10+ and `pip`
+-   Node.js 18+ and `npm`
 
 ### Installation & Setup
 
-1.  **Clone the repository:**
-    ```sh
-    git clone https://github.com/your-username/HelpMe.git
-    cd HelpMe
-    ```
-
-2.  **Backend Setup:**
-    ```sh
-    # Create and activate a virtual environment
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows, use: .venv\Scripts\activate
-
-    # Install Python dependencies
-    pip install -r requirements.txt
-    ```
-
-3.  **Frontend Setup:**
-    ```sh
-    # Navigate to the frontend directory and install npm packages
-    cd frontend
-    npm install
-    cd ..
-    ```
-
-4.  **Configure API Keys:**
-    -   Create a `.env` file in the project root by copying the example:
-        ```sh
-        cp .env.example .env
-        ```
-    -   Open the `.env` file and add your API keys for Gemini and/or OpenRouter.
+1.  **Clone the repository and navigate into it.**
+2.  **Backend:** Create a virtual environment, activate it, and run `pip install -r requirements.txt`.
+3.  **Frontend:** Navigate to the `frontend` directory and run `npm install`.
+4.  **API Keys:** Create a `.env` file from `.env.example` and add your API keys for Gemini and/or OpenRouter.
 
 ### Running the Application
 
-You'll need to run the backend and frontend servers in two separate terminals.
+1.  **Run Backend Server:** `uvicorn backend.main:app --reload`
+2.  **Run Frontend Server:** `cd frontend && npm run dev`
 
-1.  **Run the Backend Server:**
-    ```sh
-    # Make sure your virtual environment is activated
-    uvicorn backend.main:app --reload
-    ```
-    The backend will be running at `http://127.0.0.1:8000`.
-
-2.  **Run the Frontend Development Server:**
-    ```sh
-    cd frontend
-    npm run dev
-    ```
-    The frontend will be available at `http://localhost:5173`.
+The application will be available at `http://localhost:5173`.

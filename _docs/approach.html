@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>approach.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="project-approach-autonomous-research-assistant">Project Approach: Autonomous Research Assistant</h1>
+<p>This document outlines the technical architecture and strategy for building <strong>HelpMe</strong>, an autonomous agent system designed to answer complex user queries by researching, synthesizing, and citing information from online sources.</p>
+<p><strong>Objective:</strong> To build a system that can take a query, such as <em>&quot;What is the RICE scoring model for prioritization, and how is it different from the Kano model?&quot;</em>, and produce a single, reliable, and well-cited answer.</p>
+<hr>
+<h2 id="1-high-level-architecture">1. High-Level Architecture</h2>
+<p>The system is built on a decoupled client-server model to ensure a clean separation of concerns, scalability, and maintainability.</p>
+<ul>
+<li><strong>Frontend:</strong> A <strong>React</strong> Single-Page Application (SPA) provides a clean, responsive user interface for a student or user to submit their question.</li>
+<li><strong>Backend:</strong> A high-performance <strong>Python API server using FastAPI</strong> orchestrates the multi-agent research and synthesis workflow.</li>
+<li><strong>External Services:</strong> The backend integrates with third-party APIs for Large Language Models (LLMs) and web search.</li>
+</ul>
+<h3 id="core-workflow-from-question-to-answer">Core Workflow: From Question to Answer</h3>
+<p>The system follows a structured, multi-step process to handle a user's query, mimicking the workflow of a human research assistant.</p>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    A[Frontend UI] -- 1. User submits query --> B[Backend API];
+    B -- 2. Request forwarded --> C[Orchestrator];
+    C -- 3. Refine Query for Search --> D[LLM Agent: Query Rewriter];
+    D -- 4. Optimized search terms --> E[Search Tool];
+    E -- 5. Fetches source URLs --> F[Researcher Agent];
+    F -- 6. Extracts content from sources --> G[Content Fetcher];
+    G -- 7. Structured research data (JSON) --> C;
+    C -- 8. Pass data to Synthesizer --> H[Synthesizer Agent];
+    H -- 9. Generate final answer using LLM --> I[LLM Service];
+    I -- 10. Formatted & cited answer --> B;
+    B -- 11. Sends final answer to UI --> A;
+</div></code></pre>
+<hr>
+<h2 id="2-the-autonomous-agent-system">2. The Autonomous Agent System</h2>
+<p>The core of the backend is a multi-agent system where each agent has a specialized role. This modular design makes the logic easy to follow, debug, and extend.</p>
+<ol>
+<li>
+<p><strong>Orchestrator:</strong> The central controller that manages the entire workflow, passing the query and data between the other agents and tools.</p>
+</li>
+<li>
+<p><strong>Researcher Agent:</strong> This agent's primary responsibility is to find and process reliable information.</p>
+<ul>
+<li><strong>Query Refinement:</strong> It first uses an LLM with a specialized prompt (<code>query_rewriter_system.txt</code>) to transform the user's natural language question into a set of concise, keyword-driven search queries. This is a critical step for improving the relevance of search results.</li>
+<li><strong>Source Aggregation:</strong> It uses a search tool (defaulting to DuckDuckGo) to find relevant articles and URLs.</li>
+<li><strong>Content Extraction:</strong> For each URL, it uses the <code>newspaper3k</code> library to intelligently extract the core article content, filtering out ads and boilerplate. To avoid being blocked, the fetcher identifies itself with a standard browser <code>User-Agent</code> header. All sources are fetched concurrently to minimize latency.</li>
+</ul>
+</li>
+<li>
+<p><strong>Synthesizer Agent:</strong> This agent's role is to transform the structured JSON data from the Researcher into a high-quality, human-readable answer.</p>
+<ul>
+<li><strong>Prompt Engineering:</strong> The agent uses a carefully crafted system prompt (<code>synthesizer_system.txt</code>) that instructs the LLM to act as a professional research analyst.</li>
+<li><strong>Core Directives:</strong> The prompt enforces strict rules:
+<ol>
+<li>Base the answer <strong>only</strong> on the provided source data to prevent hallucinations.</li>
+<li>Meticulously cite sources using a clear format (e.g., <code>[1]</code>, <code>[2]</code>).</li>
+<li>Follow strict formatting rules (Markdown) to ensure the frontend can correctly render the answer and link citations.</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="3-key-technical-decisions">3. Key Technical Decisions</h2>
+<p>The technology stack was chosen to prioritize performance, user experience, and maintainability.</p>
+<ul>
+<li>
+<p><strong>Backend (FastAPI &amp; Python):</strong> FastAPI was chosen for its high performance, asynchronous capabilities, and automatic API documentation. Python's extensive ecosystem of data processing and AI libraries makes it the ideal choice for the backend logic.</p>
+</li>
+<li>
+<p><strong>Frontend (React &amp; Vite):</strong> React allows for the creation of a dynamic and component-based UI. Vite provides a fast and efficient development experience. The application logic is separated into custom React Hooks (<code>useQueryHistory</code>, <code>useResearch</code>) to keep the UI components clean and maintainable.</p>
+</li>
+<li>
+<p><strong>LLM Agnostic Design:</strong> The system is designed to be flexible in its use of LLMs.</p>
+<ul>
+<li><strong>Default (OpenRouter):</strong> It defaults to OpenRouter, an aggregator that provides access to a wide variety of models, including free, open-source options. This ensures the application can be run without requiring paid API keys.</li>
+<li><strong>Alternative (Google Gemini):</strong> Native support for Google's Gemini models is also included for users who require higher-quality synthesis.</li>
+<li>The user can switch between any configured provider and model directly from the UI.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="4-setup-and-run-instructions">4. Setup and Run Instructions</h2>
+<p><em>Note: These instructions are also available in the main <code>README.md</code> file.</em>
+<img src="long.png" alt="HelpMe Screenshot"></p>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Python 3.10+ and <code>pip</code></li>
+<li>Node.js 18+ and <code>npm</code></li>
+</ul>
+<h3 id="installation--setup">Installation &amp; Setup</h3>
+<ol>
+<li><strong>Clone the repository and navigate into it.</strong></li>
+<li><strong>Backend:</strong> Create a virtual environment, activate it, and run <code>pip install -r requirements.txt</code>.</li>
+<li><strong>Frontend:</strong> Navigate to the <code>frontend</code> directory and run <code>npm install</code>.</li>
+<li><strong>API Keys:</strong> Create a <code>.env</code> file from <code>.env.example</code> and add your API keys for Gemini and/or OpenRouter.</li>
+</ol>
+<h3 id="running-the-application">Running the Application</h3>
+<ol>
+<li><strong>Run Backend Server:</strong> <code>uvicorn backend.main:app --reload</code></li>
+<li><strong>Run Frontend Server:</strong> <code>cd frontend &amp;&amp; npm run dev</code></li>
+</ol>
+<p>The application will be available at <code>http://localhost:5173</code>.</p>
+
+</body>
+</html>
